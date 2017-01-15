@@ -48,22 +48,27 @@
       width = +svg.attr("width"),
       height = +svg.attr("height");
 
-  var color = d3.scaleOrdinal(d3.schemeCategory20);
+  var g = svg.append("g");
 
+  svg.append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .style("fill", "none")
+    .style("pointer-events", "all")
+    .call(d3.zoom()
+        .scaleExtent([1 / 2, 4])
+        .on("zoom", zoomed));
+
+  var color = d3.scaleOrdinal(d3.schemeCategory20);
 
   var simulation = d3.forceSimulation()
       .force("link", d3.forceLink().distance(500).id(function(d) { return d.id; }))
       .force("charge", d3.forceManyBody())
       .force("center", d3.forceCenter(width / 2, height / 2));
 
+  var min_zoom = 0.1;
+  var max_zoom = 7;
 
-
-/*
-var simulation = d3.layout.force()
-    .charge(-120)
-    .linkDistance(300)
-    .size([width, height]);
-*/
 
   var force = d3.json("graph.json", function(error, graph) {
     if (error) throw error;
@@ -74,8 +79,9 @@ var simulation = d3.layout.force()
         .offset([-10, 0])
         .html(function (d) {
             return "<strong>" + d.id + "</strong><br />Some description";
-        })
+        });
     svg.call(tip);
+
 
     var link = svg.append("g")
         .attr("class", "links")
@@ -89,8 +95,6 @@ var simulation = d3.layout.force()
       .selectAll("circle")
       .data(graph.nodes)
       .enter();
-
-    var tooltipShowing = false;
 
     var nodeCircle = node.append("circle")
       .attr("r", 5)
@@ -106,11 +110,6 @@ var simulation = d3.layout.force()
       .attr("dx", 10)
       .attr("dy", ".35em")
       .text(function(d) { return d.id });
-
-/*
-    node.on('mouseover', tip.show) //Added
-        .on('mouseout', tip.hide); //Added 
-*/
 
     simulation
         .nodes(graph.nodes)
@@ -138,26 +137,6 @@ var simulation = d3.layout.force()
       });
     }
 
-
-
-    //fisheye -- needs work
-    /*
-    var fisheye = d3.fisheye.circular().radius(120);
-
-    svg.on("mousemove", function() {
-      //force.stop();
-      fisheye.focus(d3.mouse(this));
-      nodeCircle.each(function(d) { d.fisheye = fisheye(d); })
-          .attr("cx", function(d) { return d.fisheye.x; })
-          .attr("cy", function(d) { return d.fisheye.y; })
-          .attr("r", function(d) { return d.fisheye.z * 8; });
-      nodeText.attr("font-size", function(d) { return d.fisheye.x/26; });
-      link.attr("x1", function(d) { return d.source.fisheye.x; })
-          .attr("y1", function(d) { return d.source.fisheye.y; })
-          .attr("x2", function(d) { return d.target.fisheye.x; })
-          .attr("y2", function(d) { return d.target.fisheye.y; });
-    });
-    */
   });
 
   function dragstarted(d) {
@@ -177,17 +156,14 @@ var simulation = d3.layout.force()
     d.fy = null;
   }
 
-  /*
+  function zoomed() {
+    console.log("zoomed");
+    g.attr("transform", d3.event.transform);
+  }
 
-    svg.call( d3.behavior.drag()
-        .on("drag",dragmove) );
-    svg.call( d3.behavior.zoom()
-        .x(xScale)
-        .y(yScale)
-        .scaleExtent([1, 6])
-        .on("zoom", doZoom) );
 
-*/
+
+
 
 
 
