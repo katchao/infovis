@@ -30,8 +30,13 @@
       border-radius: 10px;
   }
 
+  svg {
+    width: 100vw;
+    height: 100vh;
+  }
+
 </style>
-<svg width="960" height="600"></svg>
+<svg></svg>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script type='text/javascript' src="http://bost.ocks.org/mike/fisheye/fisheye.js?0.0.3"> </script>
@@ -172,7 +177,17 @@ var simulation = d3.layout.force()
     d.fy = null;
   }
 
+  /*
 
+    svg.call( d3.behavior.drag()
+        .on("drag",dragmove) );
+    svg.call( d3.behavior.zoom()
+        .x(xScale)
+        .y(yScale)
+        .scaleExtent([1, 6])
+        .on("zoom", doZoom) );
+
+*/
 
 
 
