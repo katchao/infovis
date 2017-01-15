@@ -30,13 +30,17 @@
       border-radius: 10px;
   }
 
+  svg {
+      width: 100vw; 
+      height: 100vh
+  }
+
 </style>
 <div class="ui-widget">
    <input id="search">
    <button type="button" id="box">Search</button>
 </div>
-
-<svg width="960" height="600"></svg>
+<svg viewBox="0 0 2000 3000"></svg>
 
 <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script type='text/javascript' src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"> </script>
@@ -58,7 +62,7 @@ $(document).ready(function () {
 
 
   var simulation = d3.forceSimulation()
-      .force("link", d3.forceLink().distance(500).id(function(d) { return d.id; }))
+      .force("link", d3.forceLink().distance(600).id(function(d) { return d.id; }))
       .force("charge", d3.forceManyBody())
       .force("center", d3.forceCenter(width / 2, height / 2));
 
@@ -79,7 +83,12 @@ var simulation = d3.layout.force()
         .attr('class', 'd3-tip')
         .offset([-10, 0])
         .html(function (d) {
-            return "<strong>" + d.id + "</strong><br />Score:" + d.radius;
+            if(d.group != 1) {
+                return "<strong>" + d.id + "</strong><br />Score: " + d.radius + "<br />Year: " + d.group;
+            }
+            else {
+                return d.id;
+            }
         })
     svg.call(tip);
 
@@ -88,7 +97,7 @@ var simulation = d3.layout.force()
         .selectAll("line")
         .data(graph.links)
         .enter().append("line")
-        .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
+        .attr("stroke-width", function(d) { return Math.sqrt(d.value) / 2; });
 
     var node = svg.append("g")
       .attr("class", "nodes")
@@ -99,8 +108,15 @@ var simulation = d3.layout.force()
     var tooltipShowing = false;
 
     var nodeCircle = node.append("circle")
-      .attr("r", function(d) {return (d.radius / 5);})
-      .attr("fill", function(d) { return color(d.group); })
+      .attr("r", function(d) {return (d.radius / 2);})
+      .attr("fill", function(d) { 
+          if(d.group == 1) {
+              return d3.rgb("black"); 
+          }
+          else {
+              return color(d.group/200); 
+          }
+       })
       .on('mouseover', tip.show)
       .on('mouseout', tip.hide)
       .call(d3.drag()
