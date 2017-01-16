@@ -50,7 +50,7 @@
 <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script type='text/javascript' src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"> </script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
-<script type='text/javascript' src="http://bost.ocks.org/mike/fisheye/fisheye.js?0.0.3"> </script>
+<script src="d3-quadtree.v1.min.js"></script>
 <script type='text/javascript' src="d3-tip.js"> </script> <!-- tooltip library -->
 
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/ui-darkness/jquery-ui.css"> 
@@ -124,7 +124,7 @@ var simulation = d3.layout.force()
     var tooltipShowing = false;
 
     var nodeCircle = node.append("circle")
-      .attr("r", function(d) {return Math.min(200, (d.radius / 2));})
+      .attr("r", function(d) {return Math.max(d.radius/5, 15);})
       .attr("fill", function(d) { 
           if(d.group == 1) {
               return d3.rgb("black"); 
@@ -165,6 +165,11 @@ var simulation = d3.layout.force()
       nodeCircle
           .attr("cx", function(d) { return d.x; })
           .attr("cy", function(d) { return d.y; });
+
+      nodeCircle.each(collide(20));
+
+  };
+
 /*
       nodeText.attr("x", function (d) {
           return d.x;
@@ -173,7 +178,6 @@ var simulation = d3.layout.force()
           return d.y;
       });
 */
-    }
 
     var optArray = [];
     for (var i = 0; i < graph.nodes.length - 1; i++) {
@@ -206,6 +210,7 @@ var simulation = d3.layout.force()
         }
     }
 
+
     //Toggle stores whether the highlighting is on
     var toggle = 0;
     //Create an array logging what is connected to what
@@ -236,6 +241,38 @@ var simulation = d3.layout.force()
             toggle = 0;
         }
     }
+    
+// Resolves collisions between d and all other circles.
+var padding = 20, // separation between circles
+    radius=400;
+
+function collide(alpha) {
+  var quadtree = d3.quadtree(graph.nodes);
+  return function(d) {
+    var rb = 2*d.radius + padding,
+        nx1 = d.x - rb,
+        nx2 = d.x + rb,
+        ny1 = d.y - rb,
+        ny2 = d.y + rb;
+    
+    quadtree.visit(function(quad, x1, y1, x2, y2) {
+      if (quad.point && (quad.point !== d)) {
+        var x = d.x - quad.point.x,
+            y = d.y - quad.point.y,
+            l = Math.sqrt(x * x + y * y);
+          if (l < rb) {
+          l = (l - rb) / l * alpha;
+          d.x -= x *= l;
+          d.y -= y *= l;
+          quad.point.x += x;
+          quad.point.y += y;
+        }
+      }
+      return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+    });
+  };
+}
+//---End Insert---
 
   });
 
@@ -260,6 +297,8 @@ var simulation = d3.layout.force()
     console.log("zoomed");
     g.attr("transform", d3.event.transform);
   }
+
+
 
 
 
