@@ -1,15 +1,55 @@
 body {
   font-family: "Trebuchet MS", Helvetica, sans-serif;
+background: #FFEEEE; /* fallback for old browsers */
+background: -webkit-linear-gradient(to left, #FFEEEE , #DDEFBB); /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to left, #FFEEEE , #DDEFBB); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+margin: 0;
+padding: 0;
+}
+
+.ui-widget {
+  background: rgba(255, 255, 255, .5);
+  padding: 20px 50px 20px 50px;
+  text-align: center;
+}
+
+#search {
+  background: rgba(0, 0, 0, .5);
+  border: 0px;
+  padding: 10px 20px 10px 20px;
+  border-radius: 20px 0px 0px 20px;
+  color: #fff;
+}
+
+#box {
+  padding: 10px 20px 10px 20px;
+  border-radius: 0px 20px 20px 0px;
+  background: rgba(255, 174, 76, .5);
+  color: #444444;
+}
+
+.ui-widget button {
+  background: rgba(0, 0, 0, .5);
+  border: 0px;
+  padding: 10px 20px 10px 20px;
+  border-radius: 20px;
+  color: #fff;
+}
+
+.dropdown {
+  margin-left: 40px;
 }
 
 .links line {
-  stroke: #999;
+  stroke: #a0a0a0;
+  stroke-width: 2px;
   stroke-opacity: 0.6;
 }
 
 .nodes circle {
   stroke: #fff;
-  stroke-width: 1.5px;
+  stroke-width: 4px;
+  stroke-opacity: 0.3;
 }
 
 .node text {
