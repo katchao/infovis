@@ -15,6 +15,7 @@ var color;
 var min_zoom, max_zoom;
 
 var colorOption = "Year";
+var topAll = true;
 
 function makeGraph() {
   var ret_graph;
@@ -97,10 +98,15 @@ function makeGraph() {
       .selectAll("circle")
       .data(graph.nodes)
       .enter();
-
+/*
+    for(var i = 0; i < graph.nodes.length; i++) {
+       if(graph.nodes[i].radius < 20)
+          graph.nodes.splice(i, 1);
+    }
+*/
     var clicked = false;
 
-    var nodeCircle = node.append("circle")
+    var nodeCircle = node.append(function(d){ if (d.radius > 20) return d; })
       .attr("r", function(d) {return Math.max(d.radius/5, 15);})
       .attr("fill", function(d){
          if(d.group == 1) {
@@ -283,6 +289,19 @@ $(document).ready(function () {
     });
 
     
+    document.getElementById("toggle-top").addEventListener("click", function(event) {
+       var b = event.target; //.innerHTML;
+       console.log(b);
+       if(b.innerHTML == "Toggle Top 100")
+          b.innerHTML = "Toggle All Movies";
+       else
+          b.innerHTML = "Toggle Top 100";
+       topAll = !topAll;
+       console.log(topAll);
+       svg.selectAll("*").remove();
+       makeGraph();
+    });
+
 
   }); //end ready
 
