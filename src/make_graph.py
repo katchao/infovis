@@ -22,6 +22,13 @@ rankings = []
 
 critic_to_movie = {}
 
+movie_metadata = {}
+# #title; Director; Poster; Country; Genre; Rated; Type; Title; Language; Plot; Awards; Runtime; Year; Metascore; Released; Writer; Actors; imdbID; imdbRating; imdbVotes
+metadata = csv.reader(open(path.join(DATA_PATH, 'metadata.csv')), delimiter=';')
+for row in metadata:
+    key = row[0]
+    movie_metadata[key] = row[1:]
+
 movies = open(path.join(DATA_PATH, 'movies.csv'))
 next(movies) # skip csv header
 for line in movies:
@@ -31,8 +38,20 @@ for line in movies:
 	movie["id"] = title
 	movie["group"] = int(year)
 	movie["radius"] = score
+	movie["director"] = movie_metadata[title][0]
+	movie["poster"] = movie_metadata[title][1]
+	movie["country"] = movie_metadata[title][2]
+	movie["genre"] = movie_metadata[title][3]
+	movie["rated"] = movie_metadata[title][4]
+	movie["language"] = movie_metadata[title][7]
+	movie["plot"] = movie_metadata[title][8]
+	movie["awards"] = movie_metadata[title][9]
+	movie["runtime"] = movie_metadata[title][10]
+	movie["writer"] = movie_metadata[title][14]
+	movie["actors"] = movie_metadata[title][15]
 	nodes.append(movie)
 	critic_to_movie[title] = ranks
+
 
 #print(critic_to_movie)
 
