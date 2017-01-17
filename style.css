@@ -22,6 +22,18 @@ body {
     background: #e0e0e0;
     padding: 10px;
     border-radius: 10px;
+    width: 300px;
+}
+
+.d3-tip img {
+  width: 90%;
+  align: center;
+}
+
+.d3-tip h1 {
+  font-size: 25px;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
 }
 
 svg {

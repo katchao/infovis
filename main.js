@@ -22,6 +22,19 @@ function makeGraph() {
      return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
   }
 
+  function makeTooltip(d) {
+    var str = "";
+    str += "<img src=\"" + d.poster + "\" /><br />";
+    str += "<h1>" + d.id + "</h1>";
+    str += "<br />Score: " + d.radius;
+    str += " | Year: " + d.group;
+    str += " |" + d.runtime;
+    str += "<br /><strong>Director:</strong> " + d.director;
+    str += "<br /><strong>Starring:</strong> " + d.actors;
+    str += "<br />" + d.plot;
+    return str;
+  }
+
   svg = d3.select("svg"),
       width = +svg.attr("width"),
       height = +svg.attr("height");
@@ -51,10 +64,10 @@ function makeGraph() {
     // tooltip
     var tip = d3.tip()
         .attr('class', 'd3-tip')
-        .offset([-10, 0])
+        .offset([-10, 200])
         .html(function (d) {
             if(d.group != 1) {
-                return "<strong>" + d.id + "</strong><br />Score: " + d.radius + "<br />Year: " + d.group;
+                return makeTooltip(d);
             }
             else {
                 return d.id;
@@ -97,6 +110,7 @@ function makeGraph() {
       })
       .on('mouseover', tip.show)
       .on('mouseout', tip.hide)
+      .on('click', tip.show)
       .call(d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)
@@ -135,20 +149,20 @@ function makeGraph() {
         return linkedByIndex[a.index + "," + b.index];
     }
     function connectedNodes() {
-        if (toggle == 0) {
-            d = d3.select(this).node().__data__;
-            nodeCircle.style("opacity", function (o) {
-                return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
-            });
-            link.style("opacity", function (o) {
-                return d.index==o.source.index | d.index==o.target.index ? 1 : 0.1;
-            });
-            toggle = 1;
-        } else {
-            nodeCircle.style("opacity", 1);
-            link.style("opacity", 1);
-            toggle = 0;
-        }
+      if (toggle == 0) {
+          d = d3.select(this).node().__data__;
+          nodeCircle.style("opacity", function (o) {
+              return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
+          });
+          link.style("opacity", function (o) {
+              return d.index==o.source.index | d.index==o.target.index ? 1 : 0.1;
+          });
+          toggle = 1;
+      } else {
+          nodeCircle.style("opacity", 1);
+          link.style("opacity", 1);
+          toggle = 0;
+      }
     }
     function collide(alpha) {
       var quadtree = d3.quadtree(graph.nodes);
