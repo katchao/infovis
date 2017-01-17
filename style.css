@@ -1,5 +1,5 @@
 body {
-  font-family: arial;
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
 }
 
 .links line {
@@ -17,23 +17,32 @@ body {
 }
 
 .d3-tip {
-    line-height: 1;
-    color: black;
-    background: #e0e0e0;
+    color: #e5e5e5;
+    background: #3d3d3d;
     padding: 10px;
     border-radius: 10px;
-    width: 300px;
+    line-height: 1;
 }
 
-.d3-tip img {
-  width: 90%;
-  align: center;
+.movie {
+    width: 400px;
+    right: 0px;
 }
 
-.d3-tip h1 {
-  font-size: 25px;
-  margin-bottom: 0px;
-  padding-bottom: 0px;
+.movie .title {
+    font-size: 25px;
+    color: white;
+}
+
+.movie img {
+  max-height: 200px;
+  max-width: 150px;
+  padding: 0px 5px 5px 0px;
+  float: left;
+}
+
+.movie .description {
+  clear: both;
 }
 
 svg {

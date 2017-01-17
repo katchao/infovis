@@ -23,9 +23,9 @@ function makeGraph() {
   }
 
   function makeTooltip(d) {
-    var str = "";
+    var str = "<div class=\"movie\">";
     str += "<img src=\"" + d.poster + "\" /><br />";
-    str += "<h1>" + d.id + "</h1>";
+    str += "<div class=\"title\">" + d.id + "</div>";
     str += "<br />Score: " + d.radius;
     str += " | Year: " + d.group;
     str += " |" + d.runtime;
@@ -33,7 +33,8 @@ function makeGraph() {
     str += "<br /><strong>Language:</strong> " + d.language;
     str += "<br /><strong>Director:</strong> " + d.director;
     str += "<br /><strong>Starring:</strong> " + d.actors;
-    str += "<br />" + d.plot;
+    str += "<br /><div class=\"description\">" + d.plot;
+    str += "</div></div>";
     return str;
   }
 
@@ -66,7 +67,14 @@ function makeGraph() {
     // tooltip
     var tip = d3.tip()
         .attr('class', 'd3-tip')
-        .offset([-10, 200])
+        .direction('e')
+        .offset(function(d) {
+          if(d.group != 1) {
+            return [this.getBBox().height / 2, this.getBBox().width / 2];
+          }
+          else {
+            return [-10, 0];
+          }})
         .html(function (d) {
             if(d.group != 1) {
                 return makeTooltip(d);
@@ -90,7 +98,7 @@ function makeGraph() {
       .data(graph.nodes)
       .enter();
 
-    var tooltipShowing = false;
+    var clicked = false;
 
     var nodeCircle = node.append("circle")
       .attr("r", function(d) {return Math.max(d.radius/5, 15);})
@@ -111,8 +119,24 @@ function makeGraph() {
          }
       })
       .on('mouseover', tip.show)
-      .on('mouseout', tip.hide)
-      .on('click', tip.show)
+      .on('mouseout', function() {
+        if(clicked) {
+          clicked = false;
+          tip.show();
+        } else {
+          clicked = false;
+          tip.hide();
+        }})
+      .on('click', function() {
+        if(clicked) {
+          console.log("click");
+          clicked = false;
+          tip.hide();
+        } else {
+          clicked = true;
+          tip.show();
+        }
+      })
       .call(d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)
