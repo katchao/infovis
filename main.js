@@ -29,6 +29,8 @@ function makeGraph() {
     str += "<br />Score: " + d.radius;
     str += " | Year: " + d.group;
     str += " |" + d.runtime;
+    str += "<br /><strong>Country:</strong> " + d.country;
+    str += "<br /><strong>Language:</strong> " + d.language;
     str += "<br /><strong>Director:</strong> " + d.director;
     str += "<br /><strong>Starring:</strong> " + d.actors;
     str += "<br />" + d.plot;
