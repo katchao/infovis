@@ -83,6 +83,6 @@ json_array["nodes"] = nodes
 json_array["links"] = links
 #print(json_array)
 
-with open(path.join(DATA_PATH, 'graph.json'), 'w') as graph: 
+with open(path.join(MAIN_PATH, 'graph.json'), 'w') as graph: 
 	json.dump(json_array, graph, sort_keys=True, indent=4, ensure_ascii=False)
 
