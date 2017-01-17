@@ -1,6 +1,25 @@
-$(document).ready(function () {
+//globals
+// Resolves collisions between d and all other circles.
+var padding = 20, // separation between circles
+	radius=400;
 
-  var svg = d3.select("svg"),
+//Toggle stores whether the highlighting is on
+var toggle = 0;
+
+//Create an array logging what is connected to what
+var linkedByIndex = {};	
+	
+var svg, g;
+var simulation;
+var color;
+var min_zoom, max_zoom;
+
+var colorOption = 'Year';
+
+function makeGraph(colorOption) {
+  var ret_graph;
+
+  svg = d3.select("svg"),
       width = +svg.attr("width"),
       height = +svg.attr("height");
 
@@ -11,26 +30,17 @@ $(document).ready(function () {
          .on("zoom", zoomed)
          ).on("dblclick", null);
 
-  var g = svg.append("g");
+  g = svg.append("g");
 
-  var color = d3.scaleOrdinal(d3.schemeCategory20);
+  color = d3.scaleOrdinal(d3.schemeCategory20);
 
-
-  var simulation = d3.forceSimulation()
+  simulation = d3.forceSimulation()
       .force("link", d3.forceLink().distance(600).id(function(d) { return d.id; }))
       .force("charge", d3.forceManyBody())
       .force("center", d3.forceCenter(width / 2, height / 2));
 
-  var min_zoom = 0.1;
-  var max_zoom = 7;
-
-
-/*
-var simulation = d3.layout.force()
-    .charge(-120)
-    .linkDistance(300)
-    .size([width, height]);
-*/
+  min_zoom = 0.1;
+  max_zoom = 7;
 
   var force = d3.json("graph.json", function(error, graph) {
     if (error) throw error;
@@ -66,21 +76,28 @@ var simulation = d3.layout.force()
 
     var nodeCircle = node.append("circle")
       .attr("r", function(d) {return Math.max(d.radius/5, 15);})
-      .attr("fill", function(d) { 
-          if(d.group == 1) {
-              return d3.rgb("black"); 
-          }
-          else {
-              return color(d.group/200); 
-          }
-       })
+      .attr("fill", function(d){
+         if(d.group == 1) {
+             return d3.rgb("black"); 
+         }
+         else {
+             if(colorOption === 'Genre')
+                return color(d.genre); 
+             else if(colorOption === 'Year')
+                return color(d.group); 
+             else if(colorOption === 'Country')
+                return color(d.country); 
+             else if(colorOption === 'Language')
+                return color(d.language); 
+         }
+      })
       .on('mouseover', tip.show)
       .on('mouseout', tip.hide)
       .call(d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)
           .on("end", dragended))
-      .on('dblclick', connectedNodes); //Added code ;
+          .on('dblclick', connectedNodes); //Added code ;
 
     /*
     var nodeText = node.append("text")
@@ -108,86 +125,7 @@ var simulation = d3.layout.force()
           .attr("cy", function(d) { return d.y; });
 
       nodeCircle.each(collide(20));
-
-  };
-
-/*
-      nodeText.attr("x", function (d) {
-          return d.x;
-      })
-          .attr("y", function (d) {
-          return d.y;
-      });
-*/
-
-    var optArray = [];
-    for (var i = 0; i < graph.nodes.length - 1; i++) {
-        optArray.push(graph.nodes[i].id);
     }
-    optArray = optArray.sort();
-
-    $(function () {
-        $("#search").autocomplete({
-            source: optArray
-        });
-    });
-
-    document.getElementById("box").addEventListener("click", searchNode);
-    function searchNode() {
-        //find the node
-        var selectedVal = document.getElementById('search').value;
-        var node = svg.selectAll("circle");
-        if (selectedVal == "none") {
-            node.style("stroke", "white").style("stroke-width", "1");
-        } else {
-            var selected = node.filter(function (d, i) {
-                return d.id != selectedVal;
-            });
-            selected.style("opacity", "0");
-            var link = svg.selectAll("line")
-            link.style("opacity", "0");
-            d3.selectAll("circle, line").transition()
-                .duration(5000)
-                .style("opacity", 1);
-        }
-    }
-
-
-    //Toggle stores whether the highlighting is on
-    var toggle = 0;
-    //Create an array logging what is connected to what
-    var linkedByIndex = {};
-    for (i = 0; i < graph.nodes.length; i++) {
-        linkedByIndex[i + "," + i] = 1;
-    };
-    graph.links.forEach(function (d) {
-        linkedByIndex[d.source.index + "," + d.target.index] = 1;
-    });
-    //This function looks up whether a pair are neighbours
-    function neighboring(a, b) {
-        return linkedByIndex[a.index + "," + b.index];
-    }
-    function connectedNodes() {
-        if (toggle == 0) {
-            d = d3.select(this).node().__data__;
-            nodeCircle.style("opacity", function (o) {
-                return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
-            });
-            link.style("opacity", function (o) {
-                return d.index==o.source.index | d.index==o.target.index ? 1 : 0.1;
-            });
-            toggle = 1;
-        } else {
-            nodeCircle.style("opacity", 1);
-            link.style("opacity", 1);
-            toggle = 0;
-        }
-    }
-    
-    // Resolves collisions between d and all other circles.
-    var padding = 20, // separation between circles
-        radius=400;
-    
     function collide(alpha) {
       var quadtree = d3.quadtree(graph.nodes);
       return function(d) {
@@ -214,9 +152,74 @@ var simulation = d3.layout.force()
         });
       };
     }
-//---End Insert---
-
+    initGraph(graph);
   });
+  return ret_graph;
+}
+
+function initGraph(graph) {
+    var optArray = [];
+    for (var i = 0; i < graph.nodes.length - 1; i++) {
+        optArray.push(graph.nodes[i].id);
+    }
+    optArray = optArray.sort();
+
+    $(function () {
+        $("#search").autocomplete({
+            source: optArray
+        });
+    });
+
+    for (i = 0; i < graph.nodes.length; i++) {
+        linkedByIndex[i + "," + i] = 1;
+    };
+    graph.links.forEach(function (d) {
+        linkedByIndex[d.source.index + "," + d.target.index] = 1;
+    });	
+}
+
+$(document).ready(function () {
+	
+    makeGraph();
+
+    document.getElementById("box").addEventListener("click", searchNode);
+    function searchNode() {
+        //find the node
+        var selectedVal = document.getElementById('search').value;
+        var node = svg.selectAll("circle");
+        if (selectedVal == "none") {
+            node.style("stroke", "white").style("stroke-width", "1");
+        } else {
+            var selected = node.filter(function (d, i) {
+                return d.id != selectedVal;
+            });
+            selected.style("opacity", "0");
+            var link = svg.selectAll("line")
+            link.style("opacity", "0");
+            d3.selectAll("circle, line").transition()
+                .duration(5000)
+                .style("opacity", 1);
+        }
+    }
+
+    // Close the dropdown if the user clicks outside of it
+    window.onclick = function(event) {
+       if(event.target.parentNode.id === "myDropdown") {
+          var colorNodesBy = event.target.id; //(year|genre|language|country|cancel)
+          svg.selectAll("*").remove();         
+          makeGraph(colorNodesBy);
+          event.target.parentNode.classList.remove('show');
+      }
+    }
+
+
+    document.getElementById("color-filter").addEventListener("click", function(event) {
+       document.getElementById("myDropdown").classList.toggle("show");
+    });
+
+    
+
+  }); //end ready
 
   function dragstarted(d) {
     if (!d3.event.active) simulation.alphaTarget(0.3).restart();
@@ -240,5 +243,24 @@ var simulation = d3.layout.force()
     g.attr("transform", d3.event.transform);
   }
 
-});
 
+  //This function looks up whether a pair are neighbours
+  function neighboring(a, b) {
+      return linkedByIndex[a.index + "," + b.index];
+  }
+  function connectedNodes() {
+      if (toggle == 0) {
+          d = d3.select(this).node().__data__;
+          nodeCircle.style("opacity", function (o) {
+              return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
+          });
+          link.style("opacity", function (o) {
+              return d.index==o.source.index | d.index==o.target.index ? 1 : 0.1;
+          });
+          toggle = 1;
+      } else {
+          nodeCircle.style("opacity", 1);
+          link.style("opacity", 1);
+          toggle = 0;
+      }
+  }

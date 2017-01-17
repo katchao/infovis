@@ -15,12 +15,24 @@
 <link rel="stylesheet" href="style.css">
 
 </head>
+
 <body>
 <div class="ui-widget">
    <input id="search">
    <button type="button" id="box">Search</button>
 </div>
-<svg viewBox="0 0 2000 3000"></svg>
+<div class="dropdown">
+   <button id="color-filter">Color Nodes By</button>
+   <div id="myDropdown" class="dropdown-content">
+     <p id ="color" >Year</p>
+     <p id ="color" >Genre</p>
+     <p id ="color" >Language</p>
+     <p id ="color" >Country</p>
+  </div>
+</div>
+<div class="svg">
+   <svg viewBox="0 0 2000 3000"></svg>
+</div>
 
 
 </body>
