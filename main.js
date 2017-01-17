@@ -14,10 +14,13 @@ var simulation;
 var color;
 var min_zoom, max_zoom;
 
-var colorOption = 'Year';
+var colorOption = "Year";
 
-function makeGraph(colorOption) {
+function makeGraph() {
   var ret_graph;
+  function hash(s){
+     return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
+  }
 
   svg = d3.select("svg"),
       width = +svg.attr("width"),
@@ -81,14 +84,15 @@ function makeGraph(colorOption) {
              return d3.rgb("black"); 
          }
          else {
-             if(colorOption === 'Genre')
-                return color(d.genre); 
-             else if(colorOption === 'Year')
-                return color(d.group); 
-             else if(colorOption === 'Country')
-                return color(d.country); 
-             else if(colorOption === 'Language')
-                return color(d.language); 
+             var hashCode;
+             if(colorOption == "Genre")
+                return color(hash(d.genre)); 
+             else if(colorOption == "Year")
+                return color(d.group/200); 
+             else if(colorOption == "Country")
+                return color(hash(d.country)); 
+             else if(colorOption == "Language")
+                return color(hash(d.language)); 
          }
       })
       .on('mouseover', tip.show)
@@ -125,6 +129,26 @@ function makeGraph(colorOption) {
           .attr("cy", function(d) { return d.y; });
 
       nodeCircle.each(collide(20));
+    }
+    //This function looks up whether a pair are neighbours
+    function neighboring(a, b) {
+        return linkedByIndex[a.index + "," + b.index];
+    }
+    function connectedNodes() {
+        if (toggle == 0) {
+            d = d3.select(this).node().__data__;
+            nodeCircle.style("opacity", function (o) {
+                return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
+            });
+            link.style("opacity", function (o) {
+                return d.index==o.source.index | d.index==o.target.index ? 1 : 0.1;
+            });
+            toggle = 1;
+        } else {
+            nodeCircle.style("opacity", 1);
+            link.style("opacity", 1);
+            toggle = 0;
+        }
     }
     function collide(alpha) {
       var quadtree = d3.quadtree(graph.nodes);
@@ -205,9 +229,10 @@ $(document).ready(function () {
     // Close the dropdown if the user clicks outside of it
     window.onclick = function(event) {
        if(event.target.parentNode.id === "myDropdown") {
-          var colorNodesBy = event.target.id; //(year|genre|language|country|cancel)
-          svg.selectAll("*").remove();         
-          makeGraph(colorNodesBy);
+          var colorNodesBy = event.target.innerHTML; //(year|genre|language|country|cancel)
+          svg.selectAll("*").remove();
+          colorOption = colorNodesBy;
+          makeGraph();
           event.target.parentNode.classList.remove('show');
       }
     }
@@ -244,23 +269,3 @@ $(document).ready(function () {
   }
 
 
-  //This function looks up whether a pair are neighbours
-  function neighboring(a, b) {
-      return linkedByIndex[a.index + "," + b.index];
-  }
-  function connectedNodes() {
-      if (toggle == 0) {
-          d = d3.select(this).node().__data__;
-          nodeCircle.style("opacity", function (o) {
-              return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
-          });
-          link.style("opacity", function (o) {
-              return d.index==o.source.index | d.index==o.target.index ? 1 : 0.1;
-          });
-          toggle = 1;
-      } else {
-          nodeCircle.style("opacity", 1);
-          link.style("opacity", 1);
-          toggle = 0;
-      }
-  }
