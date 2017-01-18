@@ -347,6 +347,7 @@ $(document).ready(function () {
     str += "<br />Score: " + d.radius;
     str += " | Year: " + d.group;
     str += " |" + d.runtime;
+    str += "<br /><strong>Genre:</strong> " + d.genre;
     str += "<br /><strong>Country:</strong> " + d.country;
     str += "<br /><strong>Language:</strong> " + d.language;
     str += "<br /><strong>Director:</strong> " + d.director;
