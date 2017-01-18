@@ -19,6 +19,7 @@ padding: 0;
   padding: 10px 20px 10px 20px;
   border-radius: 20px 0px 0px 20px;
   color: #fff;
+  margin-left: 40px;
 }
 
 #box {
@@ -32,12 +33,19 @@ padding: 0;
   background: rgba(0, 0, 0, .5);
   border: 0px;
   padding: 10px 20px 10px 20px;
-  border-radius: 20px;
   color: #fff;
+  margin-left: 1px;
 }
 
-.dropdown {
-  margin-left: 40px;
+#toggle-top {
+  border-radius: 0px 20px 20px 0px;
+}
+
+.filters {
+  padding: 10px 20px 10px 20px;
+  border-radius: 20px 0px 0px 20px;
+  background: rgba(255, 174, 76, .5);
+  color: #444444;
 }
 
 .links line {
