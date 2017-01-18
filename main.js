@@ -298,11 +298,14 @@ $(document).ready(function () {
        else {
           tempGraph.nodes = ret_graph.nodes.filter(d => {return d.radius > 20 || d.group == 1});
 	  tempGraph.links = ret_graph.links.filter(function(d){
+              var connectionCount = 0;
               for(var i = 0; i < tempGraph.nodes.length; i++) {
                  t = tempGraph.nodes[i];
                  if(d.source.id == t.id || d.target.id == t.id)
-                    return true;
+                    connectionCount++;
               }
+              if(connectionCount == 2)
+                 return true;
           });
        }
        setGraph(tempGraph);
