@@ -17,28 +17,9 @@ var min_zoom, max_zoom;
 var colorOption = "Year";
 var topAll = true;
 
+var ret_graph;
+
 function makeGraph() {
-  var ret_graph;
-  function hash(s){
-     return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
-  }
-
-  function makeTooltip(d) {
-    var str = "<div class=\"movie\">";
-    str += "<img src=\"" + d.poster + "\" /><br />";
-    str += "<div class=\"title\">" + d.id + "</div>";
-    str += "<br />Score: " + d.radius;
-    str += " | Year: " + d.group;
-    str += " |" + d.runtime;
-    str += "<br /><strong>Country:</strong> " + d.country;
-    str += "<br /><strong>Language:</strong> " + d.language;
-    str += "<br /><strong>Director:</strong> " + d.director;
-    str += "<br /><strong>Starring:</strong> " + d.actors;
-    str += "<br /><div class=\"description\">" + d.plot;
-    str += "</div></div>";
-    return str;
-  }
-
   svg = d3.select("svg"),
       width = +svg.attr("width"),
       height = +svg.attr("height");
@@ -65,6 +46,15 @@ function makeGraph() {
   var force = d3.json("graph.json", function(error, graph) {
     if (error) throw error;
 
+    ret_graph = graph;
+
+    setGraph(graph);
+    initGraph(graph);
+  });
+}
+
+function setGraph(graph) {
+	
     // tooltip
     var tip = d3.tip()
         .attr('class', 'd3-tip')
@@ -106,7 +96,8 @@ function makeGraph() {
 */
     var clicked = false;
 
-    var nodeCircle = node.append(function(d){ if (d.radius > 20) return d; })
+    //var nodeCircle = node.append(function(d){ if (d.radius > 20) return d; })
+    var nodeCircle = node.append("circle")
       .attr("r", function(d) {return Math.max(d.radius/5, 15);})
       .attr("fill", function(d){
          if(d.group == 1) {
@@ -194,7 +185,7 @@ function makeGraph() {
           nodeCircle.style("opacity", 1);
           link.style("opacity", 1);
           toggle = 0;
-      }
+    }
     }
     function collide(alpha) {
       var quadtree = d3.quadtree(graph.nodes);
@@ -222,9 +213,7 @@ function makeGraph() {
         });
       };
     }
-    initGraph(graph);
-  });
-  return ret_graph;
+
 }
 
 function initGraph(graph) {
@@ -291,15 +280,32 @@ $(document).ready(function () {
     
     document.getElementById("toggle-top").addEventListener("click", function(event) {
        var b = event.target; //.innerHTML;
-       console.log(b);
        if(b.innerHTML == "Toggle Top 100")
           b.innerHTML = "Toggle All Movies";
        else
           b.innerHTML = "Toggle Top 100";
        topAll = !topAll;
-       console.log(topAll);
-       svg.selectAll("*").remove();
-       makeGraph();
+
+       var myNode = document.getElementsByTagName("svg")[0];
+       myNode.innerHTML = '';
+       g = svg.append("g");
+	   
+       var tempGraph = {};
+       if(topAll) { 
+          tempGraph.nodes = ret_graph.nodes;
+	  tempGraph.links = ret_graph.links;
+       }
+       else {
+          tempGraph.nodes = ret_graph.nodes.filter(d => {return d.radius > 20 || d.group == 1});
+	  tempGraph.links = ret_graph.links.filter(function(d){
+              for(var i = 0; i < tempGraph.nodes.length; i++) {
+                 t = tempGraph.nodes[i];
+                 if(d.source.id == t.id || d.target.id == t.id)
+                    return true;
+              }
+          });
+       }
+       setGraph(tempGraph);
     });
 
 
@@ -327,4 +333,23 @@ $(document).ready(function () {
     g.attr("transform", d3.event.transform);
   }
 
+  function hash(s){
+     return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
+  }
+
+  function makeTooltip(d) {
+    var str = "<div class=\"movie\">";
+    str += "<img src=\"" + d.poster + "\" /><br />";
+    str += "<div class=\"title\">" + d.id + "</div>";
+    str += "<br />Score: " + d.radius;
+    str += " | Year: " + d.group;
+    str += " |" + d.runtime;
+    str += "<br /><strong>Country:</strong> " + d.country;
+    str += "<br /><strong>Language:</strong> " + d.language;
+    str += "<br /><strong>Director:</strong> " + d.director;
+    str += "<br /><strong>Starring:</strong> " + d.actors;
+    str += "<br /><div class=\"description\">" + d.plot;
+    str += "</div></div>";
+    return str;
+  }
 
